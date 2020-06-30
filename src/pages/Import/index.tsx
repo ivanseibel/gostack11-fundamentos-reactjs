@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-
-import filesize from 'filesize';
+import Loader from 'react-loader-spinner';
 
 import Header from '../../components/Header';
 import FileList from '../../components/FileList';
@@ -19,23 +17,43 @@ interface FileProps {
 }
 
 const Import: React.FC = () => {
+  const [uploading, setUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
-  const history = useHistory();
 
   async function handleUpload(): Promise<void> {
-    // const data = new FormData();
-
-    // TODO
-
     try {
-      // await api.post('/transactions/import', data);
+      setUploading(true);
+
+      const uploads = uploadedFiles.map(uf => {
+        const data = new FormData();
+        data.append('file', uf.file);
+
+        return api.post('transactions/import', data);
+      });
+
+      await Promise.all(uploads);
+
+      setTimeout(() => {
+        setUploading(false);
+      }, 2000);
+      setUploadedFiles([]);
     } catch (err) {
-      // console.log(err.response.error);
+      // eslint-disable-next-line no-console
+      console.log(err.response.error);
+      setUploading(false);
     }
   }
 
   function submitFile(files: File[]): void {
-    // TODO
+    const uf: FileProps[] = [];
+    for (let index = 0; index < files.length; index += 1) {
+      uf.push({
+        file: files[index],
+        name: files[index].name,
+        readableSize: `${files[index].size} bytes`,
+      });
+    }
+    setUploadedFiles(uf);
   }
 
   return (
@@ -53,7 +71,16 @@ const Import: React.FC = () => {
               Permitido apenas arquivos CSV
             </p>
             <button onClick={handleUpload} type="button">
-              Enviar
+              {uploading ? (
+                <Loader
+                  color="#fff"
+                  width={15}
+                  height={15}
+                  type="BallTriangle"
+                />
+              ) : (
+                'Enviar'
+              )}
             </button>
           </Footer>
         </ImportFileContainer>

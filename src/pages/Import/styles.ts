@@ -48,6 +48,7 @@ export const Footer = styled.section`
     padding: 15px 80px;
     border: 0;
     transition: background-color 0.2s;
+    width: 200px;
 
     &:hover {
       background: ${shade(0.2, '#ff872c')};

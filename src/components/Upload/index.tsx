@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ReactNode } from 'react';
 
 import Dropzone from 'react-dropzone';
@@ -27,14 +28,26 @@ const Upload: React.FC<UploadProps> = ({ onUpload }: UploadProps) => {
 
   return (
     <>
-      <Dropzone accept=".csv, application/vnd.ms-excel, text/csv" onDropAccepted={(files) => onUpload(files)}>
+      <Dropzone
+        accept=".csv, application/vnd.ms-excel, text/csv"
+        // multiple={false}
+        onDropAccepted={files => {
+          onUpload(files);
+        }}
+      >
         {({ getRootProps, getInputProps, isDragActive, isDragReject }): any => (
           <DropContainer
             {...getRootProps()}
             isDragActive={isDragActive}
             isDragReject={isDragReject}
           >
-            <input {...getInputProps()} data-testid="upload" />
+            <input
+              {...getInputProps()}
+              data-testid="upload"
+              onChange={e => {
+                onUpload(e.target.files);
+              }}
+            />
             {renderDragMessage(isDragActive, isDragReject)}
           </DropContainer>
         )}
